@@ -1,0 +1,18 @@
+<ul class="nav nav-pills nav-stacked">
+    <li><a href="/">Home</a></li>
+
+    {# LOG IN/OUT #}
+    {%if not session.id%}
+    <li><a href="/auth">Log in</a></li>
+    {%else%}
+    <li><a href="/auth">Log out</a></li>
+    {%endif%}
+
+    {# DISPLAY THESE IF USER LOGGED IN #}
+    {% if session.id%}
+    <li><a href="/api/opensession/1">API Access</a></li>
+    <li><a href="#">Contact Us</a></li>
+    <li><a href="#">Request Data</a></li>
+    <li><a href="#">Admin</a></li>
+    {%endif%}
+</ul>

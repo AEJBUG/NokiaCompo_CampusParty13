@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <title>SITE TITLE - {%block title%}{%endblock%}</title>
+
+    {# LOAD STYLES, PLEASE EDIT THE SASS FILES AND COMPILE INSTEAD OF EDITING CSS DIRECTLY #}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}"/>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/sitestyles.css')}}"/>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="row-lg-12">
+            {%if get_flashed_messages()%}
+            <ul class="list-unstyled _flashed_messages">
+                {%for x in get_flashed_messages()%}
+                <li>
+                    <div class="alert alert-success">{{x}}</div>
+                </li>
+                {%endfor%}
+            </ul>
+            {%endif%}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-offset-3 col-lg-9">
+            <h1>{%block header%}{%endblock%}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 _nav">
+            {%include '_nav.html'%}
+        </div>
+        <div class="col-lg-9 _content">
+            {%block content%}{%endblock%}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 _footer">{%include '_footer.html'%}</div>
+    </div>
+</div>
+
+
+{# APPLY ANY JS NOW THE DOM IS LOADED #}
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-2.0.3.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/siteactions.js')}}"></script>
+
+</body>
+</html>

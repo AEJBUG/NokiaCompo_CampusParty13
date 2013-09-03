@@ -29,12 +29,19 @@ class Users(Base):
 
 class Stores(Base):
     name = CharField(unique=True)
+    owner = ForeignKeyField(Users)
     lng = FloatField(null=True, default=None)
     lat = FloatField(null=True, default=None)
+
+    def __unicode__(self):
+        return self.name.upper()
 
 
 class Tags(Base):
     store = ForeignKeyField(Stores, 'tags')
+
+    def __unicode__(self):
+        return '%d FOR STORE %s' % (self.id, self.store.first().name.upper())
 
 
 class Sessions(Base):
@@ -42,22 +49,35 @@ class Sessions(Base):
     timeOpened = DateTimeField(default=datetime.datetime.now())
     timeClosed = DateTimeField(null=True, default=None)
 
+    def __unicode__(self):
+        return self.id
 
-class Catagories(Base):
+
+class Categories(Base):
     name = CharField()
+
+    def __unicode__(self):
+        return self.name.upper()
 
 
 class StoreItems(Base):
     store = ForeignKeyField(Stores, related_name='storeitems')
-    catagories = ForeignKeyField(Catagories)
+    category = ForeignKeyField(Categories)
     name = CharField()
+    desc = CharField()
     price = FloatField()
+
+    def __unicode__(self):
+        return '%s FOR STORE %s' % (self.name.upper(), self.store.first().name.upper())
 
 
 class OrderItems(Base):
     session = ForeignKeyField(Sessions, related_name='orderitems')
     item = ForeignKeyField(StoreItems)
     quantity = IntegerField()
+
+    def __unicode__(self):
+        return '%d of %s' % (self.quantity, self.item.first().name.upper())
 
 
 class ArchiveSessions(Base):
@@ -71,15 +91,3 @@ class ArchivedOrderItems(Base):
     item = ForeignKeyField(StoreItems)
     itemPrice = FloatField()
     quantity = IntegerField()
-
-
-if __name__ == '__main__':
-    Users.create_table(fail_silently=True)
-    Stores.create_table(fail_silently=True)
-    Sessions.create_table(fail_silently=True)
-    Tags.create_table(fail_silently=True)
-    Catagories.create_table(fail_silently=True)
-    StoreItems.create_table(fail_silently=True)
-    OrderItems.create_table(fail_silently=True)
-    ArchiveSessions.create_table(fail_silently=True)
-    ArchivedOrderItems.create_table(fail_silently=True)

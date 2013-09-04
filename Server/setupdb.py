@@ -62,6 +62,9 @@ items = [
     ['NUTTY FRIED BRIE WEDGES', "Somerset Brie wedges lightly fried in a nutty coating served with a cranberry relish",
      1, 4.99],
 
+    # Desserts
+    ['ICE CREAM', 'It\'s Ice Cream, what more do you want.', 3, 3.99],
+
     # Mains
     ['10OZ RUMPSTEAK',
      'Black Barn Farm 21 day matured large ten ounce succulent steak, griddled, served with thick cut chips, tomato, buttered field mushrooms and seasoned Spanish onion rings.',
@@ -76,6 +79,9 @@ items = [
     ['BUTTERFLIED CHICKEN',
      'Tender chicken breast topped with a mushroom, bacon and tarragon cream sauce, fresh vegetables and a choice of potatoes',
      2, 10.95],
+
+    # Drinks
+    ['Coke', 'Full Fat', 4, 0.99]
 ]
 
 for x in items:

@@ -1,6 +1,8 @@
+from collections import defaultdict
 import datetime
+import json
 import dicttoxml
-from flask import Flask, render_template, session, flash, redirect, url_for
+from flask import Flask, render_template, session, flash, redirect, url_for, request
 from database import Sessions, Tags, ArchiveSessions, StoreItems
 
 __author__ = 'david'
@@ -23,6 +25,29 @@ def v_index():
 def v_viewsessions():
     return ''
     # TODO: implement this
+
+# NEW SERVER STUFF
+@app.route('/api/order', methods=["POST"])
+def s_order():
+    data = request.data # but data will be empty unless the request has the proper content-type header...
+    if not data:
+        data = request.form.keys()[0]
+    session["order"] = json.loads(data)
+    return " YOU ORDERED FOOD YOU FAT SHITE %s" % data
+
+
+@app.route('/api/<id>')
+def s_tag(id=None):
+    tag = Tags.select().where(Tags.id == id).first()
+    session['id'] = tag.id
+    storeItems = StoreItems.select().where(StoreItems.store == tag.store)
+
+    dump = defaultdict(list)
+
+    for x in storeItems:
+        dump[x.category.name].append({"id": x.id, "name": x.name, "price": x.price, "desc": x.desc})
+    return json.dumps(dump)
+
 
 # SERVERY STUFF
 @app.route('/auth', methods=['GET', 'POST'])

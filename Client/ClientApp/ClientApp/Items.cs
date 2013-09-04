@@ -9,6 +9,7 @@ namespace ClientApp
     class Items
     {
         int ID;
+        int quantity = 0;
         string name, description;
         float price;
 
@@ -16,6 +17,12 @@ namespace ClientApp
         {
             get { return ID; }
             set { ID = value; }
+        }
+
+        public int theQuantity
+        {
+            get { return quantity; }
+            set { quantity = value; }
         }
 
         public string theName

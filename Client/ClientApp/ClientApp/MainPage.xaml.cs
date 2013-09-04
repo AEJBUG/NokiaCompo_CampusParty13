@@ -16,8 +16,9 @@ namespace ClientApp
 {
     public partial class MainPage : PhoneApplicationPage
     {
-       
 
+        string tableID;
+        List<category> theCategoriesList = new List<category>();
         // Constructor
         public MainPage()
         {
@@ -30,12 +31,32 @@ namespace ClientApp
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //QR or NFC ID found, get menu
-            string tableID = "123F";
+            tableID = "123F";
+            string XMLurl;
+            WebClient XMLString;
+            if (MessageBox.Show("Would you like to make an order?", "No", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                MessageBox.Show("YOU CLICKED YES");
+                XMLurl = "http://10.10.1.105:5000/api/startsession/"+tableID;
+                XMLString = new WebClient();
+                XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(ignoreReply);
+                XMLString.DownloadStringAsync(new Uri(XMLurl));
+            }
+            else
+            {
+                return;
+            }
+
             //string XMLurl = "http:////10.10.1.105:5000//api//openTag//" + tableID;
-            string XMLurl = "http://peelypeel.com/exampleXML.xml";
-            WebClient XMLString = new WebClient();
+            XMLurl = "http://peelypeel.com/exampleXML.xml";
+            XMLString = new WebClient();
             XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadXMLStringCompleted);
             XMLString.DownloadStringAsync(new Uri(XMLurl));
+        }
+
+        void ignoreReply(object sender, DownloadStringCompletedEventArgs e)
+        {
+
         }
 
         void DownloadXMLStringCompleted(object sender, DownloadStringCompletedEventArgs e)
@@ -50,6 +71,7 @@ namespace ClientApp
 
             //create a menu
             StoreMenu theMenu = new StoreMenu();
+            theMenu.theTableID = tableID;
 
             //loop though the XML. EXTRACT
             string theCats = "";
@@ -59,8 +81,8 @@ namespace ClientApp
                 var cats = root.Elements();
 
                 //Create Catogry List
-                List<category> theCategoriesList = new List<category>();
-
+                //moved to top to make access in this class everywqhere
+                
                 //at each catagory
                 foreach (XElement cat in cats)
                 {//for each catgory          
@@ -101,7 +123,39 @@ namespace ClientApp
                 //theCats += cat.FirstAttribute.Value;
 
                 //populate pano with menu
-                llDrinks.ItemsSource = theCategoriesList.ToList();
+                //List<string> tmpstringlist = new List<string>();
+                int count=0;
+                foreach (category TMPCAT in theCategoriesList)
+                {
+                    List<string> tmpstringlist = new List<string>();
+                    foreach (Items tmpitems in TMPCAT.theItems)
+                    {
+                        tmpstringlist.Add(tmpitems.theName);
+                    }
+
+                    switch (count)
+                    {
+                        case 0:
+                            llDrinks.ItemsSource = tmpstringlist.ToList();
+                            break;
+                        case 1:
+                            llStarter.ItemsSource = tmpstringlist.ToList();
+                            break;
+                        case 2:
+                            llMain.ItemsSource = tmpstringlist.ToList();
+                            break;
+                        case 3:
+                            llDesert.ItemsSource = tmpstringlist.ToList(); 
+                            break;
+                    }
+
+                    count++;
+                }
+
+
+               
+             
+                
 
                 
                 //foreach (category cat in theCategoriesList)
@@ -126,9 +180,36 @@ namespace ClientApp
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+            //contruct URL to save stuff
+            string baseURL = "http://10.10.1.105:5000/api/placeOrder/";
 
-        } 
+            //add TableNumber
+            baseURL += "?tID=" + tableID;
 
+            //loop over and add all items taht ahve a quantity mroe than 0
+            foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if (item.theQuantity > 0)
+                    {
+                        baseURL += "&" + item.theID + "=" + item.theQuantity;
+                    }
+                }
+            }
+
+            MessageBox.Show(baseURL);
+
+            string XMLurl = baseURL;
+            WebClient XMLString = new WebClient();
+            XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(orderStatus);
+            XMLString.DownloadStringAsync(new Uri(XMLurl));
+        }
+
+        void orderStatus(object sender, DownloadStringCompletedEventArgs e)
+        {
+            MessageBox.Show("i got a reply about order status thinggy");
+        }
         // Sample code for building a localized ApplicationBar
         //private void BuildLocalizedApplicationBar()
         //{

@@ -42,14 +42,14 @@ for x in xrange(24):
     t.save()
 
 # Item Catagories
-for x in ['breakfasts', 'lunches', 'dinners', 'drinks']:
+for x in ['starters', 'mains', 'desserts', 'drinks']:
     category = Categories()
     category.name = x
     category.save()
 
 # StoreItems
 items = [
-    # Breakfasts
+    # Starters
     ['WARM CRAB & LEMON POT',
      "Delicious crab meat mixed with cream, onion & yoghurt topped with a lemon and herb crust, baked in the oven and served with brown bread",
      1, 4.99],
@@ -61,9 +61,8 @@ items = [
     ['HOME MADE CHICKEN LIVER & SHERRY PATE', "A rustic pate served with onion marmalade and brown toast", 1, 4.99],
     ['NUTTY FRIED BRIE WEDGES', "Somerset Brie wedges lightly fried in a nutty coating served with a cranberry relish",
      1, 4.99],
-    # Lunches
 
-    # Dinners
+    # Mains
     ['10OZ RUMPSTEAK',
      'Black Barn Farm 21 day matured large ten ounce succulent steak, griddled, served with thick cut chips, tomato, buttered field mushrooms and seasoned Spanish onion rings.',
      2, 14.99],

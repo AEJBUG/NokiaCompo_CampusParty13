@@ -13,14 +13,16 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Windows.Threading;
 using Windows.Networking.Proximity;
+using Newtonsoft.Json;
 
 namespace ClientApp
 {
     public partial class MainPage : PhoneApplicationPage
     {
 
-        string tableID;
-        List<category> theCategoriesList = new List<category>();
+        string tableID = "123F";
+        List<int> order = new List<int>();
+        Dictionary<string, List<Dictionary<string, string>>> menu = new Dictionary<string, List<Dictionary<string, string>>>();
         ProximityDevice device = ProximityDevice.GetDefault();
         // Constructor
         public MainPage()
@@ -30,12 +32,15 @@ namespace ClientApp
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
 
-
+            /*
             if (ProximityDevice.GetDefault() != null)
+            {
                 MessageBox.Show("NFC present");
+            }
             else
+            {
                 MessageBox.Show("Your phone has no NFC or NFC is disabled");
-
+            }*/
 
 
 
@@ -47,182 +52,39 @@ namespace ClientApp
            MessageBox.Show("Message Received: "+message);  
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            //QR or NFC ID found, get menu
-            tableID = "123F";
-            string XMLurl;
-            WebClient XMLString;
             if (MessageBox.Show("Would you like to make an order?", "No", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
-                MessageBox.Show("YOU CLICKED YES");
-                XMLurl = "http://10.10.1.105:5000/api/startsession/"+tableID;
-                XMLString = new WebClient();
-                XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(ignoreReply);
-                XMLString.DownloadStringAsync(new Uri(XMLurl));
-            }
-            else
-            {
-                return;
-            }
-
-            //string XMLurl = "http:////10.10.1.105:5000//api//openTag//" + tableID;
-            XMLurl = "http://peelypeel.com/exampleXML.xml";
-            XMLString = new WebClient();
-            XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(DownloadXMLStringCompleted);
-            XMLString.DownloadStringAsync(new Uri(XMLurl));
-        }
-
-        void ignoreReply(object sender, DownloadStringCompletedEventArgs e)
-        {
-
-        }
-
-        void DownloadXMLStringCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            if (e.Error != null)
-                return;
-            XDocument doc = XDocument.Parse(e.Result);
-            MessageBox.Show(doc.Document.ToString());
-
-            XNode firstChild = doc.FirstNode;
-            var rootElement = doc.Elements();
-
-            //create a menu
-            StoreMenu theMenu = new StoreMenu();
-            theMenu.theTableID = tableID;
-
-            //loop though the XML. EXTRACT
-            string theCats = "";
-            foreach (XElement root in rootElement)
-            {//at document root
-                theCats += root.Name+"   ";
-                var cats = root.Elements();
-
-                //Create Catogry List
-                //moved to top to make access in this class everywqhere
-                
-                //at each catagory
-                foreach (XElement cat in cats)
-                {//for each catgory          
-                    theCats += cat.Attribute("Name").Value + "      ";
-
-                    //add categories name to list
-                    category tmpCat = new category(cat.Attribute("Name").Value);
-
-                    //get teh childen (items)
-                    var catItems = cat.Elements();
-                    List<Items> itemsList = new List<Items>();
-                    foreach (XElement item in catItems)
-                    {
-                        Items tmpItem = new Items(item.Attribute("Name").Value, item.Attribute("Desciption").Value, item.Attribute("Price").Value, item.Attribute("ID").Value);
-                        itemsList.Add(tmpItem);
-                        theCats += item.Attribute("Name").Value + " ";
-                    }
-                    tmpCat.theItems = itemsList;
-
-                    theCategoriesList.Add(tmpCat);
-
-                }
-                int lawlfake = theCategoriesList.Count;
-
-                //Application.Current.ApplicationLifetimeObjects.Add(theCategoriesList);
-
-                //NavigationService.Navigate(new Uri("/PanoramaPage1.xaml", UriKind.Relative));
-
-                //ObjectNav.NavigationExtensions.Navigate(this, "/PanoramaPage1.xaml", theCategoriesList);
-
-              
-
-                //List<AlphaKeyGroup<category>> DataSource = AlphaKeyGroup<category>.CreateGroups(theCategoriesList,
-                //System.Threading.Thread.CurrentThread.CurrentUICulture,
-                //(category s) => { return s.theName; }, true);
-
-                //catLongList.ItemsSource = DataSource;
-                //theCats += cat.FirstAttribute.Value;
-
-                //populate pano with menu
-                //List<string> tmpstringlist = new List<string>();
-                int count=0;
-                foreach (category TMPCAT in theCategoriesList)
+                var api = new Hacktakular();
+                var data = await api.GetMenu(tableID);
+                menu = data;
+                // DRINKS FIRST MOTHERFUCKER
+                foreach (Dictionary<string, string> d in data["drinks"])
                 {
-                    List<string> tmpstringlist = new List<string>();
-                    foreach (Items tmpitems in TMPCAT.theItems)
-                    {
-                        tmpstringlist.Add(tmpitems.theName+" - "+tmpitems.theDescription);
-                    }
-
-                    switch (count)
-                    {
-                        case 0:
-                            llDrinks.ItemsSource = tmpstringlist.ToList();
-                            break;
-                        case 1:
-                            llStarter.ItemsSource = tmpstringlist.ToList();
-                            break;
-                        case 2:
-                            llMain.ItemsSource = tmpstringlist.ToList();
-                            break;
-                        case 3:
-                            llDesert.ItemsSource = tmpstringlist.ToList(); 
-                            break;
-                    }
-
-                    count++;
+                    llDrinks.ItemsSource.Add(String.Format("{0} - {1}", d["name"], d["desc"]));
+                }
+                 foreach (Dictionary<string, string> d in data["desert"])
+                {
+                    llDesert.ItemsSource.Add(String.Format("{0} - {1}", d["name"], d["desc"]));
+                }
+                foreach (Dictionary<string, string> d in data["starter"])
+                {
+                    llStarter.ItemsSource.Add(String.Format("{0} - {1}", d["name"], d["desc"]));
+                }
+                foreach (Dictionary<string, string> d in data["main"])
+                {
+                    llMain.ItemsSource.Add(String.Format("{0} - {1}", d["name"], d["desc"]));
                 }
 
-
-              
-             
-                
-
-                
-                //foreach (category cat in theCategoriesList)
-                //{
-                //    panoPaneDrinks.Header = cat.theName;
-                //    foreach (Items item in cat.theItems)
-                //    {
-                //        List<AlphaKeyGroup<Items>> DataSource = AlphaKeyGroup<Items>.CreateGroups(cat.theItems,
-                //        System.Threading.Thread.CurrentThread.CurrentUICulture,
-                //        (Items s) => { return s.theName; }, true);
-
-                        
-
-                //    }
-                //}
             }
-            
-            
-            MessageBox.Show(theCats);
-
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            //contruct URL to save stuff
-            string baseURL = "http://10.10.1.105:5000/api/placeOrder/";
 
-            //add TableNumber
-            baseURL += "?tID=" + tableID;
-
-            //loop over and add all items taht ahve a quantity mroe than 0
-            foreach (category cat in theCategoriesList)
-            {
-                foreach (Items item in cat.theItems)
-                {
-                    if (item.theQuantity > 0)
-                    {
-                        baseURL += "&" + item.theID + "=" + item.theQuantity;
-                    }
-                }
-            }
-
-            MessageBox.Show(baseURL);
-
-            string XMLurl = baseURL;
-            WebClient XMLString = new WebClient();
-            XMLString.DownloadStringCompleted += new DownloadStringCompletedEventHandler(orderStatus);
-            XMLString.DownloadStringAsync(new Uri(XMLurl));
+            var api = new Hacktakular();
+            api.MakeOrder(order, tableID);
         }
 
         void orderStatus(object sender, DownloadStringCompletedEventArgs e)
@@ -232,68 +94,56 @@ namespace ClientApp
 
         private void llDrinks_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-           foreach (category cat in theCategoriesList)
+            foreach (Dictionary<string, string> d in menu["drinks"])
             {
-                foreach (Items item in cat.theItems)
-                {
-                    if ((item.theName +" - "+item.theDescription) == llDrinks.SelectedItem+"")
-                    {
-                        item.theQuantity++;
-                        recentUpdate(item.theName, true);
-                    }
+                var txt = String.Format("{0} - {1}", d["name"], d["desc"]);
+                if (llDrinks.SelectedItem == txt){
+                    order.Add(int.Parse(d["id"]));
                 }
             }
+            updateSummary();
         }
 
         private void llStarter_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (category cat in theCategoriesList)
+            foreach (Dictionary<string, string> d in menu["starter"])
             {
-                foreach (Items item in cat.theItems)
+                var txt = String.Format("{0} - {1}", d["name"], d["desc"]);
+                if (llStarter.SelectedItem == txt)
                 {
-                    if ((item.theName + " - " + item.theDescription) == llStarter.SelectedItem + "")
-                    {
-                        item.theQuantity++;
-                        recentUpdate(item.theName, true);
-                    }
+                    order.Add(int.Parse(d["id"]));
                 }
-            }
+            } 
         }
 
         private void llMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (category cat in theCategoriesList)
+            foreach (Dictionary<string, string> d in menu["main"])
             {
-                foreach (Items item in cat.theItems)
+                var txt = String.Format("{0} - {1}", d["name"], d["desc"]);
+                if (llMain.SelectedItem == txt)
                 {
-                    if ((item.theName + " - " + item.theDescription) == llMain.SelectedItem + "")
-                    {
-                        item.theQuantity++;
-                        recentUpdate(item.theName, true);
-                    }
+                    order.Add(int.Parse(d["id"]));
                 }
-            }
+            } 
         }
 
         private void llDesert_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (category cat in theCategoriesList)
+            foreach (Dictionary<string, string> d in menu["desert"])
             {
-                foreach (Items item in cat.theItems)
+                var txt = String.Format("{0} - {1}", d["name"], d["desc"]);
+                if (llMain.SelectedItem == txt)
                 {
-                    if ((item.theName + " - " + item.theDescription) == llDesert.SelectedItem + "")
-                    {
-                        item.theQuantity++;
-                        recentUpdate(item.theName, true);
-                    }
+                    order.Add(int.Parse(d["id"]));
                 }
-            }
+            } 
         }
 
         private void llSummary_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             
-
+            /*
             foreach (category cat in theCategoriesList)
             {
                 foreach (Items item in cat.theItems)
@@ -307,6 +157,7 @@ namespace ClientApp
             }
             
             updateSummary();
+             * */
         }
 
         public void recentUpdate(string text, bool add)
@@ -338,7 +189,7 @@ namespace ClientApp
         {
             List<string> summeryList = new List<string>();
             FoodCost = 0;
-           
+            /*
             foreach (category cat in theCategoriesList)
             {
                 summeryList.Add(cat.theName);
@@ -362,7 +213,7 @@ namespace ClientApp
 
             TotalCostBFTLabel.Text = "£"+Math.Round(FoodCost, 2).ToString();
             llSummary.ItemsSource = summeryList.ToList();
-            
+            */
         }
 
      

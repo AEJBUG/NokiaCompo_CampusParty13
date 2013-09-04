@@ -11,6 +11,8 @@ using ClientApp.Resources;
 
 using System.Xml;
 using System.Xml.Linq;
+using System.Windows.Threading;
+using Windows.Networking.Proximity;
 
 namespace ClientApp
 {
@@ -19,6 +21,7 @@ namespace ClientApp
 
         string tableID;
         List<category> theCategoriesList = new List<category>();
+        ProximityDevice device = ProximityDevice.GetDefault();
         // Constructor
         public MainPage()
         {
@@ -26,6 +29,22 @@ namespace ClientApp
 
             // Sample code to localize the ApplicationBar
             //BuildLocalizedApplicationBar();
+
+
+            if (ProximityDevice.GetDefault() != null)
+                MessageBox.Show("NFC present");
+            else
+                MessageBox.Show("Your phone has no NFC or NFC is disabled");
+
+
+
+
+            long subscribedMessageId = device.SubscribeForMessage("Windows.SampleMessage", messageReceivedHandler);
+        }
+
+        void messageReceivedHandler(ProximityDevice device, ProximityMessage message)
+        {
+           MessageBox.Show("Message Received: "+message);  
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -130,7 +149,7 @@ namespace ClientApp
                     List<string> tmpstringlist = new List<string>();
                     foreach (Items tmpitems in TMPCAT.theItems)
                     {
-                        tmpstringlist.Add(tmpitems.theName);
+                        tmpstringlist.Add(tmpitems.theName+" - "+tmpitems.theDescription);
                     }
 
                     switch (count)
@@ -153,7 +172,7 @@ namespace ClientApp
                 }
 
 
-               
+              
              
                 
 
@@ -210,6 +229,186 @@ namespace ClientApp
         {
             MessageBox.Show("i got a reply about order status thinggy");
         }
+
+        private void llDrinks_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+           foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if ((item.theName +" - "+item.theDescription) == llDrinks.SelectedItem+"")
+                    {
+                        item.theQuantity++;
+                        recentUpdate(item.theName, true);
+                    }
+                }
+            }
+        }
+
+        private void llStarter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if ((item.theName + " - " + item.theDescription) == llStarter.SelectedItem + "")
+                    {
+                        item.theQuantity++;
+                        recentUpdate(item.theName, true);
+                    }
+                }
+            }
+        }
+
+        private void llMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if ((item.theName + " - " + item.theDescription) == llMain.SelectedItem + "")
+                    {
+                        item.theQuantity++;
+                        recentUpdate(item.theName, true);
+                    }
+                }
+            }
+        }
+
+        private void llDesert_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if ((item.theName + " - " + item.theDescription) == llDesert.SelectedItem + "")
+                    {
+                        item.theQuantity++;
+                        recentUpdate(item.theName, true);
+                    }
+                }
+            }
+        }
+
+        private void llSummary_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+
+            foreach (category cat in theCategoriesList)
+            {
+                foreach (Items item in cat.theItems)
+                {
+                    if (padAndPound("    " + item.theQuantity+" x "+item.theName,item.thePrice) == llSummary.SelectedItem + "")
+                    {
+                        item.theQuantity--;
+                        recentUpdate(item.theName, false);
+                    }
+                }
+            }
+            
+            updateSummary();
+        }
+
+        public void recentUpdate(string text, bool add)
+        {
+            if (add)
+            {
+                toast.Text = "Added " + text + " to order";
+            }
+            else
+            {
+                toast.Text = "Removed " + text + " from order";
+            }
+
+            // creating timer instance
+            DispatcherTimer newTimer = new DispatcherTimer();
+            // timer interval specified as 1 second
+            newTimer.Interval = TimeSpan.FromMilliseconds(500);
+            // Sub-routine OnTimerTick will be called at every 1 second
+            newTimer.Tick += OnTimerTick;
+            // starting the timer
+            newTimer.Start();
+
+            updateSummary();
+        }
+
+        List<string> summeryList = new List<string>();
+        double FoodCost;
+        public void updateSummary()
+        {
+            List<string> summeryList = new List<string>();
+            FoodCost = 0;
+           
+            foreach (category cat in theCategoriesList)
+            {
+                summeryList.Add(cat.theName);
+                int count = 0;
+                foreach (Items item in cat.theItems)
+                {
+                    if (item.theQuantity > 0)
+                    {
+                        summeryList.Add(padAndPound("    " + item.theQuantity+" x "+item.theName,item.thePrice));
+                        count++;
+                        FoodCost += item.theQuantity * item.thePrice;
+                    }
+
+                }
+                if (count == 0)
+                {
+                    summeryList.Add("    None Selected");
+                }
+                //summeryList.Add(System.Environment.NewLine);
+            }
+
+            TotalCostBFTLabel.Text = "£"+Math.Round(FoodCost, 2).ToString();
+            llSummary.ItemsSource = summeryList.ToList();
+            
+        }
+
+     
+
+        void OnTimerTick(Object sender, EventArgs args)
+        {
+            // text box property is set to current system date.
+            // ToString() converts the datetime value into text
+            toast.Text = "";
+        }
+
+        public string padAndPound(string text, float price)
+        {
+            int len = 50 - text.Length;
+            for (int i = 0; i < len; i++)
+            {
+                text += " ";
+            }
+            text += "£" + price;
+            return text;
+        }
+
+        double Tip;
+        double finalCost;
+        private void TipSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (FoodCost == null || FoodCost == 0)
+            {
+                ThankyouLable.Opacity = 0;
+                return;
+            }
+            
+            TipSlider.Maximum = FoodCost * 0.15;
+            Tip = TipSlider.Value;
+            TipAmountLable.Text = "£" + Math.Round(Tip, 2);
+            finalCost = FoodCost+Tip;
+            FinalCostLabel.Text = "£" + Math.Round(finalCost, 2);
+
+            ThankyouLable.Opacity = (100*(Tip/TipSlider.Maximum))/80;
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {//PAY
+
+        }
+
         // Sample code for building a localized ApplicationBar
         //private void BuildLocalizedApplicationBar()
         //{

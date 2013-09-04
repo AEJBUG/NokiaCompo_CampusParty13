@@ -16,6 +16,8 @@ namespace ClientApp
 {
     public partial class MainPage : PhoneApplicationPage
     {
+       
+
         // Constructor
         public MainPage()
         {
@@ -67,6 +69,7 @@ namespace ClientApp
                     //add categories name to list
                     category tmpCat = new category(cat.FirstAttribute.Value);
                     
+                    
 
                     //get teh childen (items)
                     var catItems = cat.Elements();
@@ -83,12 +86,48 @@ namespace ClientApp
 
                 }
                 int lawlfake = theCategoriesList.Count;
-                //catLongList.ItemsSource = ;
+
+                //Application.Current.ApplicationLifetimeObjects.Add(theCategoriesList);
+
+                //NavigationService.Navigate(new Uri("/PanoramaPage1.xaml", UriKind.Relative));
+
+                //ObjectNav.NavigationExtensions.Navigate(this, "/PanoramaPage1.xaml", theCategoriesList);
+
+              
+
+                //List<AlphaKeyGroup<category>> DataSource = AlphaKeyGroup<category>.CreateGroups(theCategoriesList,
+                //System.Threading.Thread.CurrentThread.CurrentUICulture,
+                //(category s) => { return s.theName; }, true);
+
+                //catLongList.ItemsSource = DataSource;
                 //theCats += cat.FirstAttribute.Value;
+
+                //populate pano with menu
+                llDrinks.ItemsSource = theCategoriesList.ToList();
+
+                
+                //foreach (category cat in theCategoriesList)
+                //{
+                //    panoPaneDrinks.Header = cat.theName;
+                //    foreach (Items item in cat.theItems)
+                //    {
+                //        List<AlphaKeyGroup<Items>> DataSource = AlphaKeyGroup<Items>.CreateGroups(cat.theItems,
+                //        System.Threading.Thread.CurrentThread.CurrentUICulture,
+                //        (Items s) => { return s.theName; }, true);
+
+                        
+
+                //    }
+                //}
             }
             
             
             MessageBox.Show(theCats);
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
 
         } 
 

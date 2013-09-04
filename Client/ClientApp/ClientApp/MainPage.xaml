@@ -47,10 +47,34 @@
 
         <!--ContentPanel - place additional content here-->
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <Button Content="Button" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-            <phone:LongListSelector HorizontalAlignment="Left" Height="496" Margin="0,111,0,0" VerticalAlignment="Top" Width="446" x:Name="catLongList"/>
+            <Button Content="SendTableIDGetMenu" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+            <phone:Panorama Title="Menu" Margin="-10,471,10,-421">
 
+                <!--Panorama item one-->
+                <phone:PanoramaItem Header="Drinks" x:Name="panoPaneDrinks">
+                    <phone:LongListSelector HorizontalAlignment="Left" Width="381" x:Name="llDrinks"/>
+                </phone:PanoramaItem>
+
+                <!--Panorama item one-->
+                <phone:PanoramaItem Header="Starters" x:Name="panoPaneStarters">
+                    <CheckBox Content="CheckBox" HorizontalAlignment="Left" Height="240" VerticalAlignment="Top" Width="163"/>
+
+                </phone:PanoramaItem>
+
+                <!--Panorama item one-->
+                <phone:PanoramaItem Header="Main" x:Name="panoPaneMains">
+                    <Grid/>
+                </phone:PanoramaItem>
+
+                <!--Panorama item one-->
+                <phone:PanoramaItem Header="Desert" x:Name="panoPaneDesert">
+                    <Grid/>
+                </phone:PanoramaItem>
+
+            </phone:Panorama>
+            <Button Content="SendTableNumberAndOrderItemsReceiveStatus" HorizontalAlignment="Left" Margin="10,87,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
         </Grid>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="26,166,0,0" Grid.Row="1" VerticalAlignment="Top"/>
 
         <!--Uncomment to see an alignment grid to help ensure your controls are
             aligned on common boundaries.  The image has a top margin of -32px to

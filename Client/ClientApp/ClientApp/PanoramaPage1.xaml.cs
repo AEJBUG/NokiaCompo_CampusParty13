@@ -10,11 +10,20 @@ using Microsoft.Phone.Shell;
 
 namespace ClientApp
 {
-    public partial class Page1 : PhoneApplicationPage
+    public partial class PanoramaPage1 : PhoneApplicationPage
     {
-        public Page1()
+       
+
+        public PanoramaPage1()
         {
             InitializeComponent();
+
+            begin();
+        }
+
+        public void begin()
+        {
+            //List<category> theCatList = (List<category>)Application.Current.ApplicationLifetimeObjects[0];
         }
     }
 }

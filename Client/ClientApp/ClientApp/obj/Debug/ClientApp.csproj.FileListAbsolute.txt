@@ -16,4 +16,6 @@ C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientAp
 C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\ClientApp.dll
 C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\ClientApp.pdb
 C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\XapCacheFile.xml
-C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\Page1.g.cs
+C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\ClientApp.csprojResolveAssemblyReference.cache
+C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\obj\Debug\PanoramaPage1.g.cs
+C:\Users\ITR\Documents\GitHub\NokiaCompo_CampusParty13\Client\ClientApp\ClientApp\Bin\Debug\Microsoft.Phone.Controls.dll

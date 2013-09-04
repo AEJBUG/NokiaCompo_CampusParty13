@@ -41,12 +41,12 @@ class Tags(Base):
     store = ForeignKeyField(Stores, 'tags')
 
     def __unicode__(self):
-        return '%d FOR STORE %s' % (self.id, self.store.first().name.upper())
+        return '%d FOR STORE %s' % (self.id, self.store)
 
 
 class Sessions(Base):
     tag = ForeignKeyField(Tags, related_name='session')
-    timeOpened = DateTimeField(default=datetime.datetime.now())
+    timeOpened = DateTimeField()
     timeClosed = DateTimeField(null=True, default=None)
 
     def __unicode__(self):
@@ -68,7 +68,7 @@ class StoreItems(Base):
     price = FloatField()
 
     def __unicode__(self):
-        return '%s FOR STORE %s' % (self.name.upper(), self.store.first().name.upper())
+        return '%s FOR STORE %s' % (self.name.upper(), self.store.name.upper())
 
 
 class OrderItems(Base):

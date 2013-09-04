@@ -1,5 +1,7 @@
+import datetime
+import dicttoxml
 from flask import Flask, render_template, session, flash, redirect, url_for
-from database import Sessions, Tags
+from database import Sessions, Tags, ArchiveSessions, StoreItems
 
 __author__ = 'david'
 
@@ -15,6 +17,12 @@ def hexToDec(i):
 @app.route('/')
 def v_index():
     return render_template('v_index.html')
+
+
+@app.route('/sessions')
+def v_viewsessions():
+    return ''
+    # TODO: implement this
 
 # SERVERY STUFF
 @app.route('/auth', methods=['GET', 'POST'])
@@ -37,7 +45,7 @@ def s_auth():
 def s_getsessions():
     rv = '<pre>'
     for x in Sessions.select():
-        rv += x.id + '\n'
+        rv += 'SESSION ' + str(x.id) + '\n'
     rv += '</pre>'
     return rv
 
@@ -48,13 +56,18 @@ def s_startsession(i):
     # tag = Tags.select().where(Tags.id == str(hexToDec(i))).first()
     tag = Tags.select().where(Tags.id == i).first()
     if tag is not None:
-        if tag.session.first() is not None:
-            return 'Tag belongs to: ' + tag.store.name + '. Currently running a session.'
-        else:
+        if tag.session.first() is None:
+            # No session for this ID exists, create one
             s = Sessions()
+            s.timeOpened = datetime.datetime.now()
             s.tag = tag
             s.save()
-            return 'Tag belongs to: ' + tag.store.name + '. New session was created'
+
+        # Format menu for consumption
+        data = {'menu': []}
+        for x in StoreItems.select().where(StoreItems.store == tag.store):
+            data['menu'].append({'name': x.name, 'desc': x.desc, 'id': x.id, 'price': x.price})
+        return str(dicttoxml.dicttoxml(data, ids=False))
     else:
         flash('Sorry, that tag does not exist')
         return redirect(url_for('v_index'))
@@ -63,8 +76,36 @@ def s_startsession(i):
 @app.route('/api/endsession/<i>')
 def s_endsession(i):
     tag = Tags.select().where(Tags.id == i).first()
-    if tag is not None:
-        pass
+    if tag.session.first() is not None:
+        s = tag.session.first()
+        s.timeClosed = datetime.datetime.now()
+        s.save()
+
+        # Now migrate it
+        arse = ArchiveSessions()
+        arse.tag = tag
+        arse.timeOpened = s.timeOpened
+        arse.timeClosed = s.timeClosed
+        arse.save()
+
+        # Now delete the old one
+        # Sessions.
+        return 'Tag %d\'s session was closed!' % tag.id
+    else:
+        return 'Tag %d has no associated session!' % tag.id
+
+
+@app.route('/api/orderitems/<tag>/<items>', methods=['GET', 'POST'])
+def s_orderitems():
+    items = [x.split(':') for x in items.split(',')]
+    pass
+    # TODO: implement a method of sending an order to the server
+
+
+@app.route('/api/callstaff')
+def s_callstaff():
+    pass
+    # TODO: implement a method of requesting a member of staff
 
 
 if __name__ == '__main__':

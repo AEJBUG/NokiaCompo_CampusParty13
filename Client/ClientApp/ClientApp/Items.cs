@@ -8,8 +8,15 @@ namespace ClientApp
 {
     class Items
     {
+        int ID;
         string name, description;
         float price;
+
+        public int theID
+        {
+            get { return ID; }
+            set { ID = value; }
+        }
 
         public string theName
         {
@@ -29,11 +36,12 @@ namespace ClientApp
             set { price = value; }
         }
 
-        public Items(string Name, string Description, string Price)
+        public Items(string Name, string Description, string Price, string id)
         {
             name = Name;
             description = Description;
             float.TryParse(Price, out price);
+            int.TryParse(id, out ID);
         }
     }
 }

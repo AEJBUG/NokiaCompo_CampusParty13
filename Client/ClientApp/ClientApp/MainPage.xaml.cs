@@ -64,21 +64,19 @@ namespace ClientApp
                 //at each catagory
                 foreach (XElement cat in cats)
                 {//for each catgory          
-                    theCats += cat.FirstAttribute.Value + "      ";
+                    theCats += cat.Attribute("Name").Value + "      ";
 
                     //add categories name to list
-                    category tmpCat = new category(cat.FirstAttribute.Value);
-                    
-                    
+                    category tmpCat = new category(cat.Attribute("Name").Value);
 
                     //get teh childen (items)
                     var catItems = cat.Elements();
                     List<Items> itemsList = new List<Items>();
                     foreach (XElement item in catItems)
                     {
-                        Items tmpItem = new Items(item.FirstAttribute.Value, item.FirstAttribute.NextAttribute.Value, item.LastAttribute.Value);
+                        Items tmpItem = new Items(item.Attribute("Name").Value, item.Attribute("Desciption").Value, item.Attribute("Price").Value, item.Attribute("ID").Value);
                         itemsList.Add(tmpItem);
-                        theCats += item.FirstAttribute.Value + " ";
+                        theCats += item.Attribute("Name").Value + " ";
                     }
                     tmpCat.theItems = itemsList;
 
